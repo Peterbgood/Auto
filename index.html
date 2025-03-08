@@ -31,13 +31,6 @@
             </div>
 
             <div class="mb-3 row">
-                <label for="downPayment" class="col-sm-5 col-form-label">Down Payment ($):</label>
-                <div class="col-sm-7">
-                    <input type="number" class="form-control" id="downPayment" required>
-                </div>
-            </div>
-
-            <div class="mb-3 row">
                 <label for="interestRate" class="col-sm-5 col-form-label">Interest Rate (%):</label>
                 <div class="col-sm-7">
                     <input type="number" step="0.1" class="form-control" id="interestRate" required>
@@ -51,31 +44,15 @@
                 </div>
             </div>
 
-            <div class="mb-3 row">
-                <label for="annualTaxes" class="col-sm-5 col-form-label">Annual Taxes ($):</label>
-                <div class="col-sm-7">
-                    <input type="number" class="form-control" id="annualTaxes" required>
-                </div>
-            </div>
-
-            <div class="mb-3 row">
-                <label for="annualInsurance" class="col-sm-5 col-form-label">Annual Insurance ($):</label>
-                <div class="col-sm-7">
-                    <input type="number" class="form-control" id="annualInsurance" required>
-                </div>
-            </div>
-
             <button type="button" class="btn btn-primary" onclick="calculateCarLoan()">Calculate</button>
         </form>
 
         <div id="result" class="mt-4 card">
             <div class="card-body">
                 <h3 class="card-title">Results:</h3>
-                <p class="card-text">Loan Amount: <span id="loanAmount"></span></p>
-                <p class="card-text">Monthly Principal & Interest: <span id="monthlyPI"></span></p>
-                <p class="card-text">Monthly Taxes: <span id="monthlyTaxes"></span></p>
-                <p class="card-text">Monthly Insurance: <span id="monthlyInsurance"></span></p>
-                <p class="card-text"><strong>Total Monthly Payment: <span id="totalPayment"></span></strong></p>
+                <p class="card-text">Monthly Payment: <span id="monthlyPayment"></span></p>
+                <p class="card-text">Total Interest Paid: <span id="totalInterest"></span></p>
+                <p class="card-text"><strong>Total Loan Cost: <span id="totalCost"></span></strong></p>
             </div>
         </div>
     </div>
@@ -86,45 +63,27 @@
         function calculateCarLoan() {
             // Get input values
             const carPrice = parseFloat(document.getElementById('carPrice').value);
-            const downPayment = parseFloat(document.getElementById('downPayment').value);
             const interestRate = parseFloat(document.getElementById('interestRate').value) / 100 / 12;
             const loanTerm = parseFloat(document.getElementById('loanTerm').value) * 12;
-            const annualTaxes = parseFloat(document.getElementById('annualTaxes').value);
-            const annualInsurance = parseFloat(document.getElementById('annualInsurance').value);
 
             // Validate inputs
-            if (isNaN(carPrice) || isNaN(downPayment) || isNaN(interestRate) || 
-                isNaN(loanTerm) || isNaN(annualTaxes) || isNaN(annualInsurance)) {
+            if (isNaN(carPrice) || isNaN(interestRate) || isNaN(loanTerm)) {
                 alert('Please fill in all fields with valid numbers');
                 return;
             }
 
-            // Validate down payment is less than car price
-            if (downPayment >= carPrice) {
-                alert('Down payment must be less than car price');
-                return;
-            }
+            // Calculate monthly payment
+            const monthlyPayment = (carPrice * interestRate * Math.pow(1 + interestRate, loanTerm)) / 
+                                 (Math.pow(1 + interestRate, loanTerm) - 1);
 
-            // Calculate loan amount
-            const loanAmount = carPrice - downPayment;
-
-            // Calculate monthly principal and interest
-            const monthlyPI = (loanAmount * interestRate * Math.pow(1 + interestRate, loanTerm)) / 
-                            (Math.pow(1 + interestRate, loanTerm) - 1);
-            
-            // Calculate monthly taxes and insurance
-            const monthlyTaxes = annualTaxes / 12;
-            const monthlyInsurance = annualInsurance / 12;
-
-            // Calculate total monthly payment
-            const totalPayment = monthlyPI + monthlyTaxes + monthlyInsurance;
+            // Calculate total interest and total cost
+            const totalCost = monthlyPayment * loanTerm;
+            const totalInterest = totalCost - carPrice;
 
             // Display results
-            document.getElementById('loanAmount').textContent = '$' + loanAmount.toFixed(2);
-            document.getElementById('monthlyPI').textContent = '$' + monthlyPI.toFixed(2);
-            document.getElementById('monthlyTaxes').textContent = '$' + monthlyTaxes.toFixed(2);
-            document.getElementById('monthlyInsurance').textContent = '$' + monthlyInsurance.toFixed(2);
-            document.getElementById('totalPayment').textContent = '$' + totalPayment.toFixed(2);
+            document.getElementById('monthlyPayment').textContent = '$' + monthlyPayment.toFixed(2);
+            document.getElementById('totalInterest').textContent = '$' + totalInterest.toFixed(2);
+            document.getElementById('totalCost').textContent = '$' + totalCost.toFixed(2);
             document.getElementById('result').style.display = 'block';
         }
     </script>
